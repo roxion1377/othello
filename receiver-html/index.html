@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<script>
+
+//[要変更]ここにWebsocket プロキシサーバのURLをセットします。
+var serverURL = "ws://"+location.host+":10808/";
+//[要変更]ここにチャンネル文字列（半角英数字・ブラウザ側と同じ文字列）をセットします
+var channel = "unagi";
+var webSocket;
+var T_T = 0;
+
+function $(id){return document.getElementById(id);}
+
+function connect()
+{
+	if(channel == "" || serverURL == ""){
+		document.getElementById('messageBar').innerHTML = '[ERROR] チャンネルもしくはURLが空です。';
+		return;
+	}
+	console.log("a");
+	clearInterval(T_T);
+	webSocket = new WebSocket(serverURL);
+	webSocket.onopen = function(event){
+		document.getElementById('messageBar').innerHTML = '接続完了';
+		console.log("sending..." + " " + webSocket.readyState);
+		webSocket.send(channel + ':');
+		console.log("done");
+	};
+
+	webSocket.onmessage = function(event){
+		var msg = event.data;
+		//console.log(msg);
+		eval(msg);
+	};
+
+	webSocket.onclose = function(event){
+		T_T = setInterval("connect()",1000);
+		$('messageBar').innerHTML = "いきるきぼうを　うしなった";
+	};
+}
+
+window.onload = function(){
+	connect();
+}
+
+function onMouseMove(e)
+{
+}
+
+function onMouseDown(e)
+{
+	webSocket.send(channel + ":" + "mousedown" + ":" + event.clientX + "," + event.clientY);
+}
+
+if(typeof(String.prototype.trim) === "undefined")
+{
+    String.prototype.trim = function() 
+    {
+        return String(this).replace(/^\s+|\s+$/g, '');
+    };
+}
+
+function comment()
+{
+	var n = document.getElementById("namae").value;
+	var t = document.getElementById("tekisuto").value;
+	var c = $("komando").value;
+	var i = $("iro").value;
+	if( t.trim() != "" ) {
+		document.getElementById("tekisuto").value = "";
+		console.log(c+" "+i);
+		webSocket.send(channel + ":" + "com" + ":" + n + "," + t + "," + c +"," + i);
+	}
+}
+
+function go()
+{
+	if(window.event.keyCode==13)comment();
+}
+
+</script>
+</head>
+<body>
+<canvas id="myCanvas" width="800" height="600" onmousemove="onMouseMove(event);" onmousedown="onMouseDown(event);"></canvas>
+<div style="background:black;color:white;padding:3px;" id="messageBar">test</div>
+<form onsubmit="return false;">
+komando:<input id="komando" type="text" value="" /><br>
+shita,ue,dokoka<br>
+iro:<input id="iro" type="text" /><br>
+red,green<br>
+namae:<input id="namae" type="text" value="omae no na" />
+tekisuto:<input onkeydown="go();" id="tekisuto" type="text" value="" />
+<input type="button" value="okuru" onclick="comment();" />
+</form>
+</body>
+</html>
