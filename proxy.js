@@ -27,7 +27,7 @@ wsServer = new WebSocketServer({
 wsServer.on('close', function(request) {
 });
 
-var grpCode = require('./grp');
+var grpCode = require('./grp').grpCode;
 var Othello = require("./othello").Othello;
 var Player = require("./othello").Player;
 var Comments = require("./comment").Comments;
