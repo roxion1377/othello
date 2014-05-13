@@ -19,7 +19,6 @@ function connect()
 		document.getElementById('messageBar').innerHTML = '[ERROR] チャンネルもしくはURLが空です。';
 		return;
 	}
-	console.log("a");
 	clearInterval(T_T);
 	webSocket = new WebSocket(serverURL);
 	webSocket.onopen = function(event){
@@ -31,7 +30,7 @@ function connect()
 
 	webSocket.onmessage = function(event){
 		var msg = event.data;
-		//console.log(msg);
+		console.log(msg);
 		eval(msg);
 	};
 
@@ -86,17 +85,27 @@ function go()
 <body>
 <canvas id="myCanvas" width="800" height="600" onmousemove="onMouseMove(event);" onmousedown="onMouseDown(event);"></canvas>
 <div style="background:black;color:white;padding:3px;" id="messageBar">test</div>
+<div style="background:#008080;color:white;padding:3px;"><p style="background:#DB7093;color:white;padding:3px;">つたえたいこと<p><p id="msg"></p></div>
 <form onsubmit="return false;">
-komando:<input id="komando" type="text" value="" /><br>
+komando:<input id="komando" type="text" autocomplete="on" list="koma" value="" />
+<datalist id="koma">
+<option value="shita">
+<option value="ue">
+<option value="dokoka">
+</datalist>
 shita,ue,dokoka<br>
-iro:<input id="iro" type="text" /><br>
+iro:<input id="iro" type="text" autocomplete="on" list="iroiro" value="" />
+<datalist id="iroiro">
+<option value="red">
+<option value="green">
+</datalist>
 red,green<br>
-ookisa:<input id="ookisa" type="text" /><br>
-namae:<input id="namae" type="text" value="omae no na" />
-tekisuto:<input onkeydown="go();" id="tekisuto" type="text" value="" />
+ookisa:<input id="ookisa" type="number" /><br>
+namae:<input id="namae" type="text" value="omae no na" /><br>
+tekisuto:<input onkeydown="go();" id="tekisuto" type="text" value="" /><br>
 <input type="button" value="okuru" onclick="comment();" />
 </form>
-<p>","と":"を送信したらだめです．</p>
-<p>Firefoxはうんこで，ChromeとIEはOKでIEだと変なフォントでも表示されます．</p>
+<p>","と":"を送信したらだめです．性善説．</p>
+<p>Firefoxはよくなくて，ChromeとIEはOKでIEだと変なフォントでも表示されます．</p>
 </body>
 </html>
