@@ -51,7 +51,7 @@ function onMouseMove(e)
 
 function onMouseDown(e)
 {
-	webSocket.send(channel + ":" + "mousedown" + ":" + event.clientX + "," + event.clientY);
+	webSocket.send(channel + ":" + "mousedown" + ":" + e.clientX + "," + e.clientY);
 }
 
 if(typeof(String.prototype.trim) === "undefined")
@@ -68,10 +68,11 @@ function comment()
 	var t = document.getElementById("tekisuto").value;
 	var c = $("komando").value;
 	var i = $("iro").value;
+	var s = $("ookisa").value;
 	if( t.trim() != "" ) {
 		document.getElementById("tekisuto").value = "";
 		console.log(c+" "+i);
-		webSocket.send(channel + ":" + "com" + ":" + n + "," + t + "," + c +"," + i);
+		webSocket.send(channel + ":" + "com" + ":" + n + "," + t + "," + c +"," + i +"," + s);
 	}
 }
 
@@ -90,9 +91,12 @@ komando:<input id="komando" type="text" value="" /><br>
 shita,ue,dokoka<br>
 iro:<input id="iro" type="text" /><br>
 red,green<br>
+ookisa:<input id="ookisa" type="text" /><br>
 namae:<input id="namae" type="text" value="omae no na" />
 tekisuto:<input onkeydown="go();" id="tekisuto" type="text" value="" />
 <input type="button" value="okuru" onclick="comment();" />
 </form>
+<p>","と":"を送信したらだめです．</p>
+<p>Firefoxはうんこで，ChromeとIEはOKでIEだと変なフォントでも表示されます．</p>
 </body>
 </html>

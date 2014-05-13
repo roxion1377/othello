@@ -78,8 +78,8 @@ var osero = {
 	data:{
 		scWidth:600,
 		scHeight:600,
-		width:8,
-		height:8,
+		width:8*2,
+		height:8*2,
 	},
 	board:[],
 	ply:{
@@ -101,6 +101,20 @@ var osero = {
 				return c.join(",");
 			},
 			txt:"白"
+		},
+		p3:{
+			c:[255,255,0],
+			cnv:function() {
+				return c.join(",");
+			},
+			txt:"みろり"
+		},
+		p4:{
+			c:[0,0,255],
+			cnv:function() {
+				return c.join(",");
+			},
+			txt:"あ"
 		}
 	},
 	ord:[],
@@ -112,23 +126,36 @@ var osero = {
 	callback:function(){},
 	initialize:function() {
 		osero.reject = false;
-		for( var y = 0; y < osero.data.height; y++ ) {
-			osero.board[y] = [];
-			osero.valid[y] = [];
-			osero.ps[y] = [];
-			for( var x = 0; x < osero.data.width; x++ ) {
-				osero.board[y][x] = osero.ply.e;
-				osero.valid[y][x] = false;
-				osero.ps[y][x] = [];
+		osero.idx = 0;
+		osero.ord = [osero.ply.p1,osero.ply.p2,osero.ply.p3,osero.ply.p4];
+		for( var i = 0; i < osero.ord.length; i++ ) {
+			console.log("i="+i);
+			osero.valid[i] = [];
+			osero.ps[i] = [];
+			for( var y = 0; y < osero.data.height; y++ ) {
+				osero.valid[i][y] = [];
+				osero.ps[i][y] = [];
+				for( var x = 0; x < osero.data.width; x++ ) {
+					osero.valid[i][y][x] = false;
+					osero.ps[i][y][x] = [];
+				}
 			}
 		}
-		osero.idx = 0;
-		osero.ord = [osero.ply.p1,osero.ply.p2];
-		osero.board[3][4] = osero.ply.p1;
-		osero.board[4][3] = osero.ply.p1;
-		osero.board[3][3] = osero.ply.p2;
-		osero.board[4][4] = osero.ply.p2;
-		osero.addLog("はじまりましたぁ．先手は"+osero.ord[osero.idx].txt+"いろです");
+		for( var y = 0; y < osero.data.height; y++ ) {
+			osero.board[y] = [];
+			for( var x = 0; x < osero.data.width; x++ ) {
+				osero.board[y][x] = osero.ply.e;
+			}
+		}
+		osero.board[osero.data.height/2-1][osero.data.width/2] = osero.ply.p1;
+		osero.board[osero.data.height/2][osero.data.width/2-1] = osero.ply.p1;
+		osero.board[osero.data.height/2-1][osero.data.width/2-1] = osero.ply.p2;
+		osero.board[osero.data.height/2][osero.data.width/2] = osero.ply.p2;
+		osero.board[osero.data.height/2-2][osero.data.width/2] = osero.ply.p3;
+		osero.board[osero.data.height/2-1][osero.data.width/2-2] = osero.ply.p3;
+		osero.board[osero.data.height/2][osero.data.width/2-2] = osero.ply.p4;
+		osero.board[osero.data.height/2-2][osero.data.width/2-1] = osero.ply.p4;
+		osero.addLog("はじまりましたぁ．");
 		osero.update();
 		osero.callback();
 	},
@@ -159,34 +186,29 @@ var osero = {
 		osero.addLog("10秒後くらいにリセットされます。。。");
 		setTimeout(osero.initialize,10000);
 	},
-	put:function(x,y) {
+	put:function(x,y,conID) {
 		if( osero.reject ) return;
 		x /= parseInt(osero.data.scHeight/osero.data.height);
 		y /= parseInt(osero.data.scHeight/osero.data.height);
 		x = parseInt(x);
 		y = parseInt(y);
-		console.log(x+","+y);
+		conID = parseInt(conID);
+		console.log(x+","+y+","+conID);
+		//console.log(osero.ps[conID][y][x].length);
 		if(x<0||x>=osero.data.width||y<0||y>=osero.data.height)return;
-		if( osero.valid[y][x] ) {
-			osero.board[y][x] = osero.ord[osero.idx];
-			for( var i in osero.ps[y][x] ) {
-				var p = osero.ps[y][x][i];
-				osero.board[p.y][p.x] = osero.ord[osero.idx];
+		if( osero.valid[conID][y][x] ) {
+			osero.board[y][x] = osero.ord[conID];
+			for( var i in osero.ps[conID][y][x] ) {
+				var p = osero.ps[conID][y][x][i];
+				//console.log(p.x+" "+p.y+" "+osero.ord[conID]);
+				//console.log(p);
+				osero.board[p.y][p.x] = osero.ord[conID];
 			}
-			for(var cur = osero.idx;;) {
-				osero.idx = (osero.idx+1)%osero.ord.length;
-				if( osero.update() ) {
-					break;
-				}
-				if( cur == osero.idx ) {
-					osero.reject = true;
-					break;
-				}
-			}
+			osero.reject = !osero.update();
 			if( osero.reject ) {
 				osero.addLog("手詰まり");
 			} else {
-				osero.addLog(osero.ord[osero.idx].txt+"色の手番");
+				//osero.addLog("iei");
 			}
 			if( osero.reject ) {
 				osero.reset();
@@ -227,11 +249,13 @@ var osero = {
 	},
 	update:function() {
 		var v = false;
-		for( var y = 0; y < osero.data.width; y++ ) {
-			for( var x = 0; x < osero.data.height; x++ ) {
-				osero.ps[y][x] = osero.get(x,y,osero.ord[osero.idx]);
-				osero.valid[y][x] = osero.ps[y][x].length > 0;
-				v |= osero.valid[y][x];
+		for( var i = 0; i < osero.ord.length; i++ ) {
+			for( var y = 0; y < osero.data.width; y++ ) {
+				for( var x = 0; x < osero.data.height; x++ ) {
+					osero.ps[i][y][x] = osero.get(x,y,osero.ord[i]);
+					osero.valid[i][y][x] = osero.ps[i][y][x].length > 0;
+					v |= osero.valid[i][y][x];
+				}
 			}
 		}
 		return v;
@@ -241,25 +265,27 @@ var osero = {
 		code.push('grp.drawRect(0,0,'+osero.data.scWidth+','+osero.data.scHeight+',grp.color(65,133,65));');
 		for( var y = 0; y < osero.data.height; y++ ) {
 			code.push('grp.drawLine(0,'+y+'*('+osero.data.scHeight+'/'+osero.data.height+'),\
-'+osero.data.scWidth+','+y+'*('+osero.data.scHeight+'/'+osero.data.height+'),grp.color(255,255,255));');
+						 '+osero.data.scWidth+','+y+'*('+osero.data.scHeight+'/'+osero.data.height+'),grp.color(255,255,255));');
 		}
 		for( var x = 0; x < osero.data.width; x++ ) {
 			code.push('grp.drawLine('+x+'*('+osero.data.scWidth+'/'+osero.data.width+'),0,\
-'+x+'*('+osero.data.scWidth+'/'+osero.data.width+'),'+osero.data.scHeight+',grp.color(255,255,255));');
+						 '+x+'*('+osero.data.scWidth+'/'+osero.data.width+'),'+osero.data.scHeight+',grp.color(255,255,255));');
 		}
 		for( var y = 0; y < osero.data.height; y++ ) {
 			for( var x = 0; x < osero.data.width; x++ ) {
 				if( osero.board[y][x] != osero.ply.e ) {
 					code.push('grp.drawCircle(('+x+'+0.5)*('+osero.data.scWidth+'/'+osero.data.width+'),\
-('+y+'+0.5)*('+osero.data.scHeight+'/'+osero.data.height+'),\
-('+osero.data.scHeight+'/'+osero.data.height+')/2*0.8,\
-['+osero.board[y][x].c.join(",")+']);');
+								   ('+y+'+0.5)*('+osero.data.scHeight+'/'+osero.data.height+'),\
+								   ('+osero.data.scHeight+'/'+osero.data.height+')/2*0.8,\
+								   ['+osero.board[y][x].c.join(",")+']);');
 				}
-				if( osero.valid[y][x] ) {
-					code.push('grp.drawCircle2(('+x+'+0.5)*('+osero.data.scWidth+'/'+osero.data.width+'),\
-('+y+'+0.5)*('+osero.data.scHeight+'/'+osero.data.height+'),\
-('+osero.data.scHeight+'/'+osero.data.height+')/2*0.8,\
-['+osero.ord[osero.idx].c.join(",")+'],0.3);');
+				for( var i = 0; i < osero.ord.length; i++ ) {
+					if( osero.valid[i][y][x] ) {
+						code.push('grp.drawCircle2(('+x+'+0.5)*('+osero.data.scWidth+'/'+osero.data.width+'),\
+									   ('+y+'+0.5)*('+osero.data.scHeight+'/'+osero.data.height+'),\
+									   ('+osero.data.scHeight+'/'+osero.data.height+')/2*0.8,\
+									   ['+osero.ord[i].c.join(",")+'],0.3);');
+					}
 				}
 			}
 		}
@@ -268,6 +294,7 @@ var osero = {
 		}
 		return code.join("\n");
 	},
+	/*
 	cnv:function() {
 		var dat = [];
 		for( var y = 0; y < osero.data.height; y++ ) {
@@ -277,6 +304,12 @@ var osero = {
 		}
 		var sp = "|";
 		return sp+[osero.data.width,osero.data.height].join(sp)+sp+osero.ord[osero.idx].cnv()+sp+dat.join(sp);
+	},
+	*/
+	getPlayer:function() {
+		var res = osero.idx;
+		osero.idx = (osero.idx+1)%osero.ord.length;
+		return res;
 	}
 };
 
@@ -389,7 +422,7 @@ function pushCl()
 		cl[i].sendUTF("grp.drawRect(0,0,800,600,[0,0,0]);" + osero.renderBoardCode() + comment.renderCode());
 	}
 }
-setInterval(pushCl,200);
+setInterval(pushCl,100);
 //osero.callback = pushCl();
 
 wsServer.on('request', function(request) {
@@ -400,10 +433,12 @@ wsServer.on('request', function(request) {
 	}
 	console.log("Connected" + " " + Object.keys(conn).length);
 	var con = request.accept(null, request.origin);
+	var conID = osero.getPlayer();
 	con.sendUTF(grpCode);
 	con.sendUTF(osero.renderBoardCode());
+	con.sendUTF("$('msg').innerHTML='<p>きみは"+osero.ord[conID].txt+"</p>'");
 	cl.push(con);
-	var conID = 0;
+	console.log(conID);
 	var channels = {};
 	con.on('message', function(mg) {
 		console.log(mg);
@@ -412,7 +447,7 @@ wsServer.on('request', function(request) {
 		if( v[0] == "unagi" ) {
 			if( v[1].toLowerCase() == "mouseDown".toLowerCase() ) {
 				p = v[2].split(",");
-				osero.put(p[0],p[1]);
+				osero.put(p[0],p[1],conID);
 				//con.sendUTF(osero.renderBoardCode());
 				//pushCl();
 			}
