@@ -1,0 +1,14 @@
+#myCanvas {
+	float:left;
+}
+#fm {
+	margin-left: 10px;
+	float:left;
+}
+#msg-area {
+	float :left;
+	margin-left: 10px;
+}
+#hoge {
+	clear:both;
+}

@@ -2,6 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
+<link rel="stylesheet" href="l.css">
 <script>
 
 //[要変更]ここにWebsocket プロキシサーバのURLをセットします。
@@ -24,7 +25,7 @@ function connect()
 	webSocket.onopen = function(event){
 		document.getElementById('messageBar').innerHTML = '接続完了';
 		console.log("sending..." + " " + webSocket.readyState);
-		webSocket.send(channel + ':');
+		//webSocket.send(JSON.stringify({ch:channel}));
 		console.log("done");
 	};
 
@@ -50,7 +51,13 @@ function onMouseMove(e)
 
 function onMouseDown(e)
 {
-	webSocket.send(channel + ":" + "mousedown" + ":" + e.clientX + "," + e.clientY);
+	var data = {
+		ch:channel,
+		ty:"mousedown",
+		x:e.clientX,
+		y:e.clientY
+	};
+	webSocket.send(JSON.stringify(data));
 }
 
 if(typeof(String.prototype.trim) === "undefined")
@@ -71,22 +78,30 @@ function comment()
 	if( t.trim() != "" ) {
 		document.getElementById("tekisuto").value = "";
 		console.log(c+" "+i);
-		webSocket.send(channel + ":" + "com" + ":" + n + "," + t + "," + c +"," + i +"," + s);
+		var data = {
+			ch:channel,
+			ty:"com",
+			n:n,
+			t:t,
+			c:c,
+			i:i,
+			s:s
+		};
+		//webSocket.send(channel + ":" + "com" + ":" + n + "," + t + "," + c +"," + i +"," + s);
+		webSocket.send(JSON.stringify(data));
 	}
 }
 
-function go()
+function go(e)
 {
-	if(window.event.keyCode==13)comment();
+	if(e.keyCode==13 || e.charCode == 13)comment();
 }
 
 </script>
 </head>
 <body>
 <canvas id="myCanvas" width="800" height="600" onmousemove="onMouseMove(event);" onmousedown="onMouseDown(event);"></canvas>
-<div style="background:black;color:white;padding:3px;" id="messageBar">test</div>
-<div style="background:#008080;color:white;padding:3px;"><p style="background:#DB7093;color:white;padding:3px;">つたえたいこと<p><p id="msg"></p></div>
-<form onsubmit="return false;">
+<form id="fm" onsubmit="return false;">
 komando:<input id="komando" type="text" autocomplete="on" list="koma" value="" />
 <datalist id="koma">
 <option value="shita">
@@ -101,11 +116,18 @@ iro:<input id="iro" type="text" autocomplete="on" list="iroiro" value="" />
 </datalist>
 red,green<br>
 ookisa:<input id="ookisa" type="number" /><br>
-namae:<input id="namae" type="text" value="omae no na" /><br>
-tekisuto:<input onkeydown="go();" id="tekisuto" type="text" value="" /><br>
+namae:<input id="namae" type="text" value="omae no na" />表示するとジャマだからかざりに<br>
+tekisuto:<input onkeydown="go(event);" id="tekisuto" type="text" value="" /><br>
 <input type="button" value="okuru" onclick="comment();" />
 </form>
-<p>","と":"を送信したらだめです．性善説．</p>
-<p>Firefoxはよくなくて，ChromeとIEはOKでIEだと変なフォントでも表示されます．</p>
+<div id="msg-area">
+<div style="background:black;color:white;padding:3px;" id="messageBar">test</div>
+<div style="background:#008080;color:white;padding:3px;">
+<p style="background:#DB7093;color:white;padding:3px;">つたえたいこと<p>
+<textarea rows="20" cols="50" id="msg" readonly></textarea>
+</div>
+<p>変なフォントでも表示されるようIE使ったほうが良いかも．</p>
+</div>
+<div id="hoge"></div>
 </body>
 </html>
