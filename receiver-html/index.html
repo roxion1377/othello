@@ -6,7 +6,7 @@
 <script>
 
 //[要変更]ここにWebsocket プロキシサーバのURLをセットします。
-var serverURL = "ws://"+location.host+":10808/";
+var serverURL = "ws://"+(location.host.length>0?location.host:"localhost")+":10808/";
 //[要変更]ここにチャンネル文字列（半角英数字・ブラウザ側と同じ文字列）をセットします
 var channel = "unagi";
 var webSocket;
