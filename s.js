@@ -38,7 +38,7 @@ cl = [];
 function pushCl()
 {
 	//console.log("OK");
-	var code = "grp.drawRect(0,0,800,600,[0,0,0]);" + Gunma.draw() + comments.renderCode();
+	var code = "grp.drawRect(0,0,800,600,[0,0,0]);" + gunma.draw() + comments.renderCode();
 	async.each(cl, 
 		function(i, callback){
 			i.sendUTF(code);
