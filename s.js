@@ -34,17 +34,17 @@ var Gunma = require("./Gunma").Gunma;
 var comments = new Comments();
 var gunma = new Gunma();
 
-Gunma.init();
-Gunma.addLine(0,0,0,600);
-Gunma.addLine(0,800,0,0);
-Gunma.addLine(800,0,600,600);
-Gunma.addLine(800,800,600,0);
+gunma.init();
+gunma.addLine(0,0,0,600);
+gunma.addLine(0,800,0,0);
+gunma.addLine(800,0,600,600);
+gunma.addLine(800,800,600,0);
 
 cl = [];
 function pushCl()
 {
 	//console.log("OK");
-	var code = "grp.drawRect(0,0,800,600,[0,0,0]);" + gunma.draw() + gunma.moveObj() + comments.renderCode();
+	var code = "grp.drawRect(0,0,800,600,[0,0,0]);" + gunma.draw() + comments.renderCode();
 	async.each(cl, 
 		function(i, callback){
 			i.sendUTF(code);
@@ -70,6 +70,7 @@ wsServer.on('request', function(request) {
 	}
 	console.log("Connected" + " " + Object.keys(conn).length);
 	var con = request.accept(null, request.origin);
+	gunma.addLine(parseInt(Math.random()*600),parseInt(Math.random()*600),parseInt(Math.random()*600),parseInt(Math.random()*600));
 	con.sendUTF(grpCode);
 	cl.push(con);
 	var channels = {};

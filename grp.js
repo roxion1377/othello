@@ -12,7 +12,7 @@ module.exports.grpCode = 'grp = {\
 		grp.g.moveTo(fx,fy);\
 		grp.g.lineTo(tx,ty);\
 		grp.g.closePath();\
-		grp.g.fillStyle = "rgb("+c.join(",")+")";\
+		grp.g.strokeStyle = "rgb("+c.join(",")+")";\
 		grp.g.stroke();\
 	},\
 	drawCircle:function(x,y,r,c) {\
