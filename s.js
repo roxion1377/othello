@@ -34,6 +34,12 @@ var Gunma = require("./Gunma").Gunma;
 var comments = new Comments();
 var gunma = new Gunma();
 
+gunma.init();
+gunma.addLine(0,0,0,600);
+gunma.addLine(0,0,800,0);
+gunma.addLine(800,600,0,600);
+gunma.addLine(800,600,800,0);
+
 cl = [];
 function pushCl()
 {
@@ -47,9 +53,9 @@ function pushCl()
 		function(err){
 			if( err ) {
 				console.log(err);
-				setTimeout(pushCl,100);
+				setTimeout(pushCl,32);
 			} else {
-				setTimeout(pushCl,100);
+				setTimeout(pushCl,32);
 			}
 		}
 	);
@@ -64,6 +70,7 @@ wsServer.on('request', function(request) {
 	}
 	console.log("Connected" + " " + Object.keys(conn).length);
 	var con = request.accept(null, request.origin);
+	//gunma.addLine(parseInt(Math.random()*600),parseInt(Math.random()*600),parseInt(Math.random()*600),parseInt(Math.random()*600));
 	con.sendUTF(grpCode);
 	cl.push(con);
 	var channels = {};
@@ -75,6 +82,9 @@ wsServer.on('request', function(request) {
 			if( msg.ch == "unagi" ) {
 				if( msg.ty.toLowerCase() == "addLine".toLowerCase() ) {
 					gunma.addLine(msg.x1,msg.y1,msg.x2,msg.y2);
+				}
+				if( msg.ty.toLowerCase() == "showLine".toLowerCase() ) {
+					gunma.showLine(msg.x1,msg.y1,msg.x2,msg.y2);
 				}
 				if( msg.ty.toLowerCase() == "com".toLowerCase() ) {
 					comments.add(msg.n,msg.t,msg.c,msg.i,msg.s);
