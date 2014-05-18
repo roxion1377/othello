@@ -25,7 +25,9 @@ function connect()
 	webSocket.onopen = function(event){
 		document.getElementById('messageBar').innerHTML = '接続完了';
 		console.log("sending..." + " " + webSocket.readyState);
-		//webSocket.send(JSON.stringify({ch:channel}));
+		webSocket.send(JSON.stringify({ch:channel,ty:"msg",cli:"j",id:1}));
+		webSocket.send(JSON.stringify({ch:channel,ty:"msg",cli:"j",id:2}));
+		webSocket.send(JSON.stringify({ch:channel,ty:"msg",cli:"j",id:3}));
 		console.log("done");
 	};
 
